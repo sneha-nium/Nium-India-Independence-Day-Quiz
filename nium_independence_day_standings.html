@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nium India Independence Day Quiz - Live Standings</title>
+<title>Nium Team India - Independence Day Quiz Standings</title>
 <style>
 html, body { margin: 0; padding: 0; }
 body { background: #F5F5F5; color: #3A3A3A; font-family: 'Segoe UI', Arial, sans-serif; padding: 0 0 64px; }
@@ -30,19 +30,17 @@ tr.rank-3 { background: #FFF4EE; }
 .rank-cell { font-weight: 700; color: #0B0E58; width: 36px; }
 .name-cell { font-weight: 600; color: #0B0E58; }
 .total-cell { font-weight: 700; color: #0B0E58; font-size: 16px; }
-.bonus-badge { display: inline-block; background: #FFF4E6; color: #B25900; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+.prize-badge { display: inline-block; background: #FFF4E6; color: #B25900; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; margin-left: 6px; }
 .empty { color: #666666; font-size: 14px; padding: 24px; background: #fff; text-align: center; border-radius: 6px; }
 .error { background: #FFF4F4; border: 1px solid #F7246C; color: #B00030; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; border-radius: 6px; }
-.matrix-table td, .matrix-table th { text-align: center; }
-.matrix-table td:first-child, .matrix-table th:first-child { text-align: left; }
 .legend { font-size: 12px; color: #999; margin-top: 12px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="tricolor"><div style="background:#FF9933;"></div><div style="background:#FFFFFF;"></div><div style="background:#138808;"></div></div>
 <div class="wrap">
-  <h1>🇮🇳 India Independence Day Quiz — Live Standings</h1>
-  <p class="subtitle">Live results as employees complete the quiz. Ranked by quiz score + speed bonus. Refresh to pull the latest.</p>
+  <h1>🇮🇳 Team India Independence Day Quiz — Live Standings</h1>
+  <p class="subtitle">Live results as Team India colleagues complete the quiz. Ranked by score; ties broken by who finished first. Top 5 win prizes.</p>
 
   <div class="stats">
     <div class="stat-card"><div class="stat-value" id="submissionCount">-</div><div class="stat-label">Total entries</div></div>
@@ -55,17 +53,7 @@ tr.rank-3 { background: #FFF4EE; }
   <div id="error-container"></div>
   <div id="tableWrap"></div>
 
-  <h3>Speed Bonus Scoring Matrix</h3>
-  <table class="matrix-table">
-    <thead><tr><th>Finish order (fastest first)</th><th>Bonus points</th></tr></thead>
-    <tbody>
-      <tr><td>1st - 3rd fastest</td><td><strong>+5</strong></td></tr>
-      <tr><td>4th - 6th fastest</td><td><strong>+3</strong></td></tr>
-      <tr><td>7th - 9th fastest</td><td><strong>+2</strong></td></tr>
-      <tr><td>10th fastest onward</td><td>+0</td></tr>
-    </tbody>
-  </table>
-  <p class="legend">Total = Quiz score (out of 15) + Speed bonus (out of 5), based on each person's first completed submission. Ranking is fastest-first for the bonus tiers, then highest total overall.</p>
+  <p class="legend">Ranking = highest quiz score (out of 15) first; ties are broken by whichever entry was submitted earliest. Each person's first completed attempt counts. 🏆 marks the current top 5 - prize winners once the quiz closes.</p>
 </div>
 
 <script>
@@ -73,13 +61,6 @@ const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyd4vbcTkFGyzu4dKLiM
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function speedBonusFor(rank) {
-  if (rank <= 3) return 5;
-  if (rank <= 6) return 3;
-  if (rank <= 9) return 2;
-  return 0;
 }
 
 async function loadStandings() {
@@ -104,8 +85,8 @@ async function loadStandings() {
       timestamp: new Date(r.timestamp)
     }));
 
-    // Each person's FIRST completed submission counts - this is what the
-    // speed bonus is timed against, same rule as the Leg 1/Leg 3 team quizzes.
+    // Each person's FIRST completed submission counts - prevents anyone from
+    // retaking the quiz until they get a better score.
     const firstByName = {};
     rows.forEach(r => {
       const key = (r.name || '').trim().toLowerCase();
@@ -115,14 +96,9 @@ async function loadStandings() {
       }
     });
 
-    // Rank fastest-first to assign speed bonus tiers (5 / 3 / 2 / 0), then
-    // compute total and re-sort the leaderboard by total.
-    const bySpeed = Object.values(firstByName).sort((a, b) => a.timestamp - b.timestamp);
-    const entries = bySpeed.map((r, i) => {
-      const speedRank = i + 1;
-      const bonus = speedBonusFor(speedRank);
-      return Object.assign({}, r, { speedRank, bonus, total: r.score + bonus });
-    }).sort((a, b) => b.total - a.total || a.timestamp - b.timestamp);
+    // Rank by score first (accuracy decides the prize); ties broken by
+    // whoever's entry has the earlier timestamp.
+    const entries = Object.values(firstByName).sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
 
     document.getElementById('submissionCount').textContent = entries.length;
     document.getElementById('avgScore').textContent = entries.length
@@ -133,16 +109,15 @@ async function loadStandings() {
     if (entries.length === 0) {
       tableWrap.innerHTML = '<div class="empty">No entries yet - be the first to play!</div>';
     } else {
-      let html = '<table><thead><tr><th class="rank">#</th><th>Name</th><th>Quiz Score</th><th>Speed Bonus</th><th>Total</th><th>Submitted</th></tr></thead><tbody>';
+      let html = '<table><thead><tr><th class="rank">#</th><th>Name</th><th>Score</th><th>%</th><th>Submitted</th></tr></thead><tbody>';
       entries.forEach((r, i) => {
         const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
-        const bonusBadge = r.bonus > 0 ? `<span class="bonus-badge">+${r.bonus} speed</span>` : '';
+        const prizeBadge = i < 5 ? '<span class="prize-badge">🏆 Top 5</span>' : '';
         html += `<tr class="${rankClass}">
           <td class="rank-cell">${i + 1}</td>
-          <td class="name-cell">${esc(r.name)}${bonusBadge}</td>
-          <td>${r.score}/15</td>
-          <td>${r.bonus}</td>
-          <td class="total-cell">${r.total}</td>
+          <td class="name-cell">${esc(r.name)}${prizeBadge}</td>
+          <td class="total-cell">${r.score}/15</td>
+          <td>${r.percentage}%</td>
           <td>${r.timestamp.toLocaleString()}</td>
         </tr>`;
       });
