@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nium India Independence Day Quiz - Live Standings</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { background: #F5F5F5; color: #3A3A3A; font-family: 'Segoe UI', Arial, sans-serif; padding: 0 0 64px; }
+* { box-sizing: border-box; }
+.tricolor { height: 6px; width: 100%; display: flex; }
+.tricolor div { flex: 1; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 24px 16px; }
+h1 { color: #0B0E58; font-size: 26px; margin: 0 0 4px 0; }
+.subtitle { color: #666; font-size: 14px; margin: 0 0 20px 0; }
+h3 { color: #0B0E58; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; margin: 28px 0 10px 0; }
+.stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.stat-card { background: #FFFFFF; border-left: 4px solid #FF9933; padding: 16px 20px; flex: 1; min-width: 140px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.stat-value { font-size: 28px; font-weight: 700; color: #0B0E58; }
+.stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-top: 4px; font-weight: 600; }
+.refresh-btn { background: #46CCFF; color: #0B0E58; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+.updated-note { font-size: 12px; color: #999; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+th { background: #0B0E58; color: #fff; text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+td { padding: 10px 12px; border-bottom: 1px solid #EEE; font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+tr.rank-1 { background: #FFF9E6; }
+tr.rank-2 { background: #F5F9FF; }
+tr.rank-3 { background: #FFF4EE; }
+.rank-cell { font-weight: 700; color: #0B0E58; width: 36px; }
+.name-cell { font-weight: 600; color: #0B0E58; }
+.total-cell { font-weight: 700; color: #0B0E58; font-size: 16px; }
+.bonus-badge { display: inline-block; background: #FFF4E6; color: #B25900; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+.empty { color: #666666; font-size: 14px; padding: 24px; background: #fff; text-align: center; border-radius: 6px; }
+.error { background: #FFF4F4; border: 1px solid #F7246C; color: #B00030; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; border-radius: 6px; }
+.matrix-table td, .matrix-table th { text-align: center; }
+.matrix-table td:first-child, .matrix-table th:first-child { text-align: left; }
+.legend { font-size: 12px; color: #999; margin-top: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="tricolor"><div style="background:#FF9933;"></div><div style="background:#FFFFFF;"></div><div style="background:#138808;"></div></div>
+<div class="wrap">
+  <h1>🇮🇳 India Independence Day Quiz — Live Standings</h1>
+  <p class="subtitle">Live results as employees complete the quiz. Ranked by quiz score + speed bonus. Refresh to pull the latest.</p>
+
+  <div class="stats">
+    <div class="stat-card"><div class="stat-value" id="submissionCount">-</div><div class="stat-label">Total entries</div></div>
+    <div class="stat-card"><div class="stat-value" id="avgScore">-</div><div class="stat-label">Average quiz score</div></div>
+    <div class="stat-card"><div class="stat-value" id="leaderName" style="font-size:16px;">-</div><div class="stat-label">Current leader</div></div>
+  </div>
+
+  <button class="refresh-btn" id="refreshBtn">Refresh</button>
+  <p class="updated-note" id="updatedNote"></p>
+  <div id="error-container"></div>
+  <div id="tableWrap"></div>
+
+  <h3>Speed Bonus Scoring Matrix</h3>
+  <table class="matrix-table">
+    <thead><tr><th>Finish order (fastest first)</th><th>Bonus points</th></tr></thead>
+    <tbody>
+      <tr><td>1st - 3rd fastest</td><td><strong>+5</strong></td></tr>
+      <tr><td>4th - 6th fastest</td><td><strong>+3</strong></td></tr>
+      <tr><td>7th - 9th fastest</td><td><strong>+2</strong></td></tr>
+      <tr><td>10th fastest onward</td><td>+0</td></tr>
+    </tbody>
+  </table>
+  <p class="legend">Total = Quiz score (out of 15) + Speed bonus (out of 5), based on each person's first completed submission. Ranking is fastest-first for the bonus tiers, then highest total overall.</p>
+</div>
+
+<script>
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyd4vbcTkFGyzu4dKLiMiS0CdSPHA1iGyEmlgbV4y1s4ODypHQDTJC9rIvnebLMgCyQ/exec";
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function speedBonusFor(rank) {
+  if (rank <= 3) return 5;
+  if (rank <= 6) return 3;
+  if (rank <= 9) return 2;
+  return 0;
+}
+
+async function loadStandings() {
+  const tableWrap = document.getElementById('tableWrap');
+  const errorContainer = document.getElementById('error-container');
+  errorContainer.innerHTML = '';
+  tableWrap.innerHTML = '<p class="subtitle">Loading...</p>';
+
+  if (!WEBAPP_URL || WEBAPP_URL.indexOf('PASTE_YOUR') === 0) {
+    errorContainer.innerHTML = '<div class="error">Backend URL not configured yet - paste the deployed Apps Script Web App URL into WEBAPP_URL at the top of this file.</div>';
+    tableWrap.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(WEBAPP_URL);
+    const data = await res.json();
+    const rows = (data.results || []).map(r => ({
+      name: r.participantName,
+      score: Number(r.score) || 0,
+      percentage: Number(r.percentage) || 0,
+      timestamp: new Date(r.timestamp)
+    }));
+
+    // Each person's FIRST completed submission counts - this is what the
+    // speed bonus is timed against, same rule as the Leg 1/Leg 3 team quizzes.
+    const firstByName = {};
+    rows.forEach(r => {
+      const key = (r.name || '').trim().toLowerCase();
+      if (!key) return;
+      if (!firstByName[key] || r.timestamp < firstByName[key].timestamp) {
+        firstByName[key] = r;
+      }
+    });
+
+    // Rank fastest-first to assign speed bonus tiers (5 / 3 / 2 / 0), then
+    // compute total and re-sort the leaderboard by total.
+    const bySpeed = Object.values(firstByName).sort((a, b) => a.timestamp - b.timestamp);
+    const entries = bySpeed.map((r, i) => {
+      const speedRank = i + 1;
+      const bonus = speedBonusFor(speedRank);
+      return Object.assign({}, r, { speedRank, bonus, total: r.score + bonus });
+    }).sort((a, b) => b.total - a.total || a.timestamp - b.timestamp);
+
+    document.getElementById('submissionCount').textContent = entries.length;
+    document.getElementById('avgScore').textContent = entries.length
+      ? (entries.reduce((s, r) => s + r.score, 0) / entries.length).toFixed(1) + '/15'
+      : '-';
+    document.getElementById('leaderName').textContent = entries.length ? entries[0].name : '-';
+
+    if (entries.length === 0) {
+      tableWrap.innerHTML = '<div class="empty">No entries yet - be the first to play!</div>';
+    } else {
+      let html = '<table><thead><tr><th class="rank">#</th><th>Name</th><th>Quiz Score</th><th>Speed Bonus</th><th>Total</th><th>Submitted</th></tr></thead><tbody>';
+      entries.forEach((r, i) => {
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+        const bonusBadge = r.bonus > 0 ? `<span class="bonus-badge">+${r.bonus} speed</span>` : '';
+        html += `<tr class="${rankClass}">
+          <td class="rank-cell">${i + 1}</td>
+          <td class="name-cell">${esc(r.name)}${bonusBadge}</td>
+          <td>${r.score}/15</td>
+          <td>${r.bonus}</td>
+          <td class="total-cell">${r.total}</td>
+          <td>${r.timestamp.toLocaleString()}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      tableWrap.innerHTML = html;
+    }
+
+    document.getElementById('updatedNote').textContent = 'Last updated: ' + new Date().toLocaleString();
+  } catch (err) {
+    errorContainer.innerHTML = '<div class="error">Could not load standings (' + esc(err.message) + '). Check the backend URL and try refreshing.</div>';
+    tableWrap.innerHTML = '';
+  }
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadStandings);
+loadStandings();
+</script>
+</body>
+</html>

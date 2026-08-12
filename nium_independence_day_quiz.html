@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nium India Independence Day Quiz</title>
+<style>
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+body { background: #0B0E58; color: #FFFFFF; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+* { box-sizing: border-box; }
+.tricolor-bar { height: 6px; width: 100%; display: flex; flex-shrink: 0; }
+.tricolor-bar div { flex: 1; }
+.tricolor-border { border-image: linear-gradient(90deg, #FF9933, #FFFFFF, #138808) 1; }
+</style>
+</head>
+<body>
+<div class="tricolor-bar"><div style="background:#FF9933;"></div><div style="background:#FFFFFF;"></div><div style="background:#138808;"></div></div>
+<div id="app" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 24px; position: relative; overflow: hidden;">
+  <div style="position:absolute; top:-40px; right:-60px; width:320px; height:320px; border-radius:50%; background:#3D2080; opacity:0.35; pointer-events:none;"></div>
+  <div style="width: 100%; max-width: 600px; position: relative; z-index: 1;">
+
+    <div id="screen-start" style="display: block;">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <p style="font-size: 16px; font-weight: 700; letter-spacing: 1px; margin: 0 0 16px 0; color: #FF9933; text-transform: uppercase;">🇮🇳 Nium Celebrates Independence Day</p>
+        <h1 style="font-weight: 700; font-size: 42px; margin: 0 0 24px 0; line-height: 1.1;">India Independence <span style="color:#46CCFF;">Day Quiz</span></h1>
+        <p style="font-size: 18px; color: #C9CCEF; margin: 0;">Open to everyone at Nium - test your knowledge of India's freedom story</p>
+      </div>
+      <div style="background: #151A6E; padding: 3px; margin-bottom: 24px; border-radius: 14px; background-image: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);">
+      <div style="background: #151A6E; padding: 32px; border-radius: 11px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: #46CCFF;">Your Name</label>
+        <input id="nameInput" type="text" placeholder="e.g. Priya Sharma" style="width: 100%; padding: 12px; background: #0B0E58; border: 1px solid #46CCFF; border-radius: 6px; color: #fff; font-size: 16px; font-family: 'Segoe UI', Arial, sans-serif; outline: none; margin-bottom: 24px; box-sizing: border-box;">
+        <p style="font-size: 13px; color: #9AA0D9; margin: 0 0 20px 0;">15 questions on India's freedom struggle, symbols and history - 1 point each. Open to all offices and regions.</p>
+        <div style="background: #0B0E58; border-radius: 8px; padding: 16px 18px; margin-bottom: 24px;">
+          <p style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #FF9933; margin: 0 0 10px 0;">Speed bonus - finish fast!</p>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: #C9CCEF; margin-bottom: 4px;"><span>1st - 3rd fastest</span><strong style="color:#fff;">+5 pts</strong></div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: #C9CCEF; margin-bottom: 4px;"><span>4th - 6th fastest</span><strong style="color:#fff;">+3 pts</strong></div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: #C9CCEF;"><span>7th - 9th fastest</span><strong style="color:#fff;">+2 pts</strong></div>
+        </div>
+        <button id="startBtn" disabled style="width: 100%; padding: 14px; background: #333A8C; color: #8890C9; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; cursor: not-allowed; text-transform: uppercase; letter-spacing: 0.5px;">Start Quiz</button>
+      </div>
+      </div>
+    </div>
+
+    <div id="screen-quiz" style="display: none;">
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="font-size: 22px; font-weight: 700; margin: 0;">Question <span id="qNum" style="color:#46CCFF;">1</span> of 15</h2>
+        </div>
+        <div style="width: 100%; height: 6px; background: #2A2F8C; margin-bottom: 32px; border-radius: 3px;">
+          <div id="progressBar" style="height: 100%; background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); width: 6.67%; transition: width 0.3s; border-radius: 3px;"></div>
+        </div>
+        <h3 id="questionText" style="font-size: 20px; font-weight: 500; margin: 0 0 24px 0; line-height: 1.4;"></h3>
+        <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        <button id="nextBtn" disabled style="width: 100%; padding: 14px; margin-top: 32px; background: #333A8C; color: #8890C9; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; cursor: not-allowed; text-transform: uppercase; letter-spacing: 0.5px;">Next Question</button>
+      </div>
+    </div>
+
+    <div id="screen-results" style="display: none;">
+      <div style="text-align: center;">
+        <h2 style="font-weight: 700; font-size: 38px; margin: 0 0 16px 0;">Quiz Complete! 🇮🇳</h2>
+        <p style="font-size: 18px; color: #C9CCEF; margin: 0 0 48px 0;" id="nameDisplay"></p>
+        <div style="padding: 3px; margin-bottom: 32px; border-radius: 14px; background-image: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);">
+        <div style="background: #151A6E; padding: 48px 32px; border-radius: 11px;">
+          <div style="font-size: 13px; color: #9AA0D9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">Final Score</div>
+          <div style="font-weight: 700; font-size: 64px; margin: 0; color: #46CCFF;"><span id="finalScore">0</span>/15</div>
+          <div style="font-size: 18px; color: #C9CCEF; margin-top: 16px;"><span id="finalPercent">0</span>%</div>
+        </div>
+        </div>
+        <p id="submitStatus" style="font-size: 14px; color: #9AA0D9; margin-top: 32px;">Saving your score...</p>
+        <p style="font-size: 12px; color: #7E85BE; margin-top: 12px;">Your speed bonus (up to +5) will be added on the live standings page based on how fast you finished versus everyone else.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="tricolor-bar"><div style="background:#FF9933;"></div><div style="background:#FFFFFF;"></div><div style="background:#138808;"></div></div>
+
+<script>
+// Paste your deployed Apps Script Web App /exec URL here once Code_IndependenceDayQuiz.gs is deployed.
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyd4vbcTkFGyzu4dKLiMiS0CdSPHA1iGyEmlgbV4y1s4ODypHQDTJC9rIvnebLMgCyQ/exec";
+
+const questions = [
+  { question: 'Approximately how many years did India spend under British colonial rule before independence?', options: ['50 years', '100 years', 'Around 190 years', 'Around 250 years'], correct: 'Around 190 years' },
+  { question: 'In which year did India gain independence?', options: ['1945', '1946', '1947', '1950'], correct: '1947' },
+  { question: 'Who delivered the famous "Tryst with Destiny" speech?', options: ['Mahatma Gandhi', 'Sardar Patel', 'Jawaharlal Nehru', 'B. R. Ambedkar'], correct: 'Jawaharlal Nehru' },
+  { question: 'Where does the Prime Minister hoist the national flag on Independence Day?', options: ['India Gate', 'Rashtrapati Bhavan', 'Red Fort', 'Parliament House'], correct: 'Red Fort' },
+  { question: 'Who designed the Indian national flag in its present form?', options: ['Pingali Venkayya', 'Rabindranath Tagore', 'B. R. Ambedkar', 'Sardar Patel'], correct: 'Pingali Venkayya' },
+  { question: 'How many spokes are there in the Ashoka Chakra?', options: ['12', '18', '24', '32'], correct: '24' },
+  { question: 'What was Mahatma Gandhi’s full name?', options: ['Mohandas Karamchand Gandhi', 'Mohanlal Gandhi', 'Mohandas Lal Gandhi', 'Karamchand Mohan Gandhi'], correct: 'Mohandas Karamchand Gandhi' },
+  { question: 'Which movement was launched by Mahatma Gandhi in 1942?', options: ['Non-Cooperation Movement', 'Quit India Movement', 'Swadeshi Movement', 'Civil Disobedience Movement'], correct: 'Quit India Movement' },
+  { question: 'Which famous slogan is associated with Subhas Chandra Bose?', options: ['Jai Jawan, Jai Kisan', 'Inquilab Zindabad', '"Give me blood, and I will give you freedom"', 'Vande Mataram'], correct: '"Give me blood, and I will give you freedom"' },
+  { question: 'Which song became India’s National Anthem?', options: ['Vande Mataram', 'Jana Gana Mana', 'Sare Jahan Se Achha', 'Ae Mere Watan Ke Logon'], correct: 'Jana Gana Mana' },
+  { question: 'Who wrote "Vande Mataram"?', options: ['Bankim Chandra Chattopadhyay', 'Rabindranath Tagore', 'Sarojini Naidu', 'Subhas Chandra Bose'], correct: 'Bankim Chandra Chattopadhyay' },
+  { question: 'Which city was the capital of British India before Delhi?', options: ['Mumbai', 'Kolkata', 'Chennai', 'Lucknow'], correct: 'Kolkata' },
+  { question: 'India became a Republic in which year?', options: ['1947', '1948', '1950', '1952'], correct: '1950' },
+  { question: 'Which of these is NOT one of the three colours of the Indian national flag?', options: ['Saffron', 'White', 'Green', 'Blue'], correct: 'Blue' },
+  { question: 'FUN QUESTION 🇮🇳: If India’s Independence Day had a Nium-style tagline, which would fit best?', options: ['One Nation. One Team.', 'Freedom to Move.', 'India: Powered by Possibility.', 'All of the above!'], correct: 'All of the above!' }
+];
+
+let state = { currentQuestion: 0, selectedAnswer: null, score: 0, participantName: '' };
+
+function showScreen(screen) {
+  document.getElementById('screen-start').style.display = screen === 'start' ? 'block' : 'none';
+  document.getElementById('screen-quiz').style.display = screen === 'quiz' ? 'block' : 'none';
+  document.getElementById('screen-results').style.display = screen === 'results' ? 'block' : 'none';
+}
+
+function updateQuizUI() {
+  const q = questions[state.currentQuestion];
+  document.getElementById('questionText').textContent = q.question;
+  document.getElementById('qNum').textContent = state.currentQuestion + 1;
+  document.getElementById('progressBar').style.width = ((state.currentQuestion + 1) / 15 * 100) + '%';
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  q.options.forEach(option => {
+    const btn = document.createElement('button');
+    btn.textContent = option;
+    const selected = state.selectedAnswer === option;
+    btn.style.cssText = `padding: 14px; background: ${selected ? '#46CCFF' : '#151A6E'}; color: ${selected ? '#0B0E58' : '#fff'}; border: 1px solid ${selected ? '#46CCFF' : '#2A2F8C'}; border-radius: 6px; text-align: left; font-size: 16px; font-family: 'Segoe UI', Arial, sans-serif; cursor: pointer; transition: all 0.2s; font-weight: ${selected ? '700' : '400'};`;
+    btn.onclick = () => selectAnswer(option);
+    container.appendChild(btn);
+  });
+
+  const nextBtn = document.getElementById('nextBtn');
+  const hasAnswer = !!state.selectedAnswer;
+  nextBtn.disabled = !hasAnswer;
+  nextBtn.style.background = hasAnswer ? '#FF9933' : '#333A8C';
+  nextBtn.style.color = hasAnswer ? '#0B0E58' : '#8890C9';
+  nextBtn.style.cursor = hasAnswer ? 'pointer' : 'not-allowed';
+  nextBtn.textContent = state.currentQuestion === 14 ? 'Finish Quiz' : 'Next Question';
+}
+
+function selectAnswer(option) {
+  state.selectedAnswer = option;
+  updateQuizUI();
+}
+
+function startQuiz() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+
+  const submittedNames = JSON.parse(localStorage.getItem('nium_independence_quiz_submitted_names') || '[]');
+  if (submittedNames.includes(name)) {
+    if (!confirm(name + ' already submitted from this browser. Submit again anyway?')) return;
+  }
+
+  state.participantName = name;
+  state.currentQuestion = 0;
+  state.selectedAnswer = null;
+  state.score = 0;
+  showScreen('quiz');
+  updateQuizUI();
+}
+
+function nextQuestion() {
+  const q = questions[state.currentQuestion];
+  if (state.selectedAnswer === q.correct) state.score++;
+
+  if (state.currentQuestion === 14) {
+    showResults();
+  } else {
+    state.currentQuestion++;
+    state.selectedAnswer = null;
+    updateQuizUI();
+  }
+}
+
+async function showResults() {
+  document.getElementById('nameDisplay').textContent = state.participantName;
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalPercent').textContent = Math.round(state.score / 15 * 100);
+  showScreen('results');
+  await sendResultsToServer(state.participantName, state.score);
+}
+
+async function sendResultsToServer(participantName, score) {
+  const percentage = Math.round(score / 15 * 100);
+  const statusEl = document.getElementById('submitStatus');
+
+  const submittedNames = JSON.parse(localStorage.getItem('nium_independence_quiz_submitted_names') || '[]');
+  if (!submittedNames.includes(participantName)) {
+    submittedNames.push(participantName);
+    localStorage.setItem('nium_independence_quiz_submitted_names', JSON.stringify(submittedNames));
+  }
+
+  if (!WEBAPP_URL || WEBAPP_URL.indexOf('PASTE_YOUR') === 0) {
+    statusEl.textContent = 'Score not saved centrally yet - backend link not configured. Contact the Comms Lead.';
+    statusEl.style.color = '#F7246C';
+    return;
+  }
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ participantName, score, percentage })
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      statusEl.textContent = 'Score saved! Thanks for playing - happy Independence Day!';
+      statusEl.style.color = '#46CCFF';
+    } else {
+      throw new Error(data.message || 'unknown error');
+    }
+  } catch (err) {
+    statusEl.textContent = 'Could not save your score centrally (' + err.message + '). Please screenshot this page and send it to the Comms Lead.';
+    statusEl.style.color = '#F7246C';
+    console.error('Submission failed:', err);
+  }
+}
+
+document.getElementById('startBtn').addEventListener('click', startQuiz);
+document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+document.getElementById('nameInput').addEventListener('input', () => {
+  const btn = document.getElementById('startBtn');
+  const hasName = !!document.getElementById('nameInput').value.trim();
+  btn.disabled = !hasName;
+  btn.style.background = hasName ? '#FF9933' : '#333A8C';
+  btn.style.color = hasName ? '#0B0E58' : '#8890C9';
+  btn.style.cursor = hasName ? 'pointer' : 'not-allowed';
+});
+
+showScreen('start');
+</script>
+</body>
+</html>
